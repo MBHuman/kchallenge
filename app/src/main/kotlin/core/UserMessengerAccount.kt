@@ -12,7 +12,10 @@ import kotlin.collections.mutableListOf
 // UserMessengerAccount — подписка на чаты в единой корутине
 // -----------------------------------------------------------
 
-class UserMessengerAccount(val user: User, private val messenger: Messenger) {
+class UserMessengerAccount(
+    val user: User,
+    private val messenger: Messenger,
+) {
     val innerScope: CoroutineScope = CoroutineScope(Job())
 
     val notificators = mutableListOf<Notificator>()
@@ -39,6 +42,9 @@ class UserMessengerAccount(val user: User, private val messenger: Messenger) {
     suspend fun sendMessage(message: Message, chatID: Int) {
         messenger.sendMessage(user, message, chatID)
     }
+
+    fun readMessage(messageID: Int, chatID: Int): Message? =
+        messenger.readMessage(messageID, chatID)
 
 
     fun waitMessage(chatFlow: Flow<PackedMessage>) {

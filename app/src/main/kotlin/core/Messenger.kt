@@ -5,15 +5,16 @@ package org.example.app.core
 // -----------------------------------------------------------
 
 class Messenger(
+    private val storage: Storage,
     private val chats: MutableMap<Int, Chat> = mutableMapOf(),
-    private val usersChats: MutableMap<Int, MutableList<Int>> = mutableMapOf()
+    private val usersChats: MutableMap<Int, MutableList<Int>> = mutableMapOf(),
 ) {
 
     private var nextChatId = 1
 
     fun createChat(chatName: String): Chat {
         val chatID = nextChatId++
-        val chat = Chat(chatID, chatName)
+        val chat = Chat(chatID, chatName, storage)
         chats[chatID] = chat
         return chat
     }
@@ -25,6 +26,10 @@ class Messenger(
 
     suspend fun sendMessage(user: User, message: Message, chatID: Int) {
         chats[chatID]?.sendMessage(user, message)
+    }
+
+    fun readMessage(messageID: Int, chatID: Int): Message? {
+        return chats[chatID]?.readMessage(messageID)
     }
 
     fun getChats(user: User): List<Chat> {

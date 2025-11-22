@@ -11,10 +11,10 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 
 
 
-class Chat(val chatID: Int, val chatName: String) {
+class Chat(val chatID: Int, val chatName: String, private val storage: Storage) {
 
     private val users = mutableListOf<User>()
-    private val messages = mutableListOf<PackedMessage>()
+//    private val messages = mutableListOf<PackedMessage>()
 
     // Горячий поток сообщений чата
     private val messageFlow = MutableSharedFlow<PackedMessage>(
@@ -31,7 +31,12 @@ class Chat(val chatID: Int, val chatName: String) {
 
     suspend fun sendMessage(from: User, message: Message) {
         val pm = PackedMessage(from.userID, message)
-        messages.add(pm)
+//        messages.add(pm)
+        storage.writeMessage(message, chatID)
         messageFlow.emit(pm)
+    }
+
+    fun readMessage(messageID: Int): Message? {
+        return storage.readMessage(messageID, chatID)
     }
 }

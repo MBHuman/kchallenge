@@ -8,9 +8,10 @@ import kotlin.test.expect
 class UserMessengerAccountTest {
 
     @Test
-    fun `basic user usecase` () = runTest {
+    fun `basic user usecase`() = runTest {
         val user = User(userID = 1, userName = "Alice")
-        val messenger = Messenger()
+        val storage = Storage.Rocks("rocksdb_example")
+        val messenger = Messenger(storage)
         val uma = UserMessengerAccount(user, messenger)
         val collected = mutableListOf<String>()
         val chat = uma.createChat("General")
@@ -23,6 +24,11 @@ class UserMessengerAccountTest {
 
         expect("Hello, World!", {
             collected.first()
+        })
+
+        val messageFromChat = uma.readMessage(message.getID(), chat.chatID)
+        expect(message, {
+            messageFromChat
         })
     }
 }
