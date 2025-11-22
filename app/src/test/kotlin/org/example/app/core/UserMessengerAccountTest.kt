@@ -10,7 +10,7 @@ class UserMessengerAccountTest {
     @Test
     fun `basic user usecase`() = runTest {
         val user = User(userID = 1, userName = "Alice")
-        val storage = Storage.Rocks("rocksdb_example")
+        val storage = Storage.Rocks("rocksdb_example_account")
         val messenger = Messenger(storage)
         val uma = UserMessengerAccount(user, messenger)
         val collected = mutableListOf<String>()

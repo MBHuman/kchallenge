@@ -11,7 +11,7 @@ class StorageTests {
     fun `basic rocksdb storage test`() {
         RocksDB.loadLibrary()
 
-        val path = "rocksdb_example"
+        val path = "rocksdb_test_storage"
         val options = Options().setCreateIfMissing(true)
 
         options.use { opts ->
@@ -39,5 +39,48 @@ class StorageTests {
                 })
             }
         }
+    }
+
+    @Test
+    fun `rocksdb read and write message test`() {
+        val rocksStorage = Storage.Rocks("rocksdb_example_read_write")
+        val chatID = 8
+        val messages = listOf(
+            Message.TextMessage(1, "Hello"),
+            Message.TextMessage(2, "World"),
+            Message.TextMessage(3, "Test Message")
+        )
+
+        // Simple
+        rocksStorage.writeBatchMessages(messages, chatID)
+
+        val messagesFromDB = rocksStorage.readMessages(chatID, 10, -1)
+        expect(3, {
+            messagesFromDB.size
+        })
+        expect("Test Message", {
+            (messagesFromDB[0] as Message.TextMessage).content
+        })
+        expect("World", {
+            (messagesFromDB[1] as Message.TextMessage).content
+        })
+        expect("Hello", {
+            (messagesFromDB[2] as Message.TextMessage).content
+        })
+    }
+
+    @Test
+    fun `rocksdb encodeKey, decodeKey`() {
+        val chatID = 1
+        val msgID = 42
+        val encoded = Storage.encodeKey(chatID, msgID.toLong())
+        val (decodedChatID, decodedMsgID) = Storage.decodeKey(encoded)
+
+        expect(chatID, {
+            decodedChatID
+        })
+        expect(msgID, {
+            decodedMsgID.toInt()
+        })
     }
 }
